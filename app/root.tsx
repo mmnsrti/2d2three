@@ -15,6 +15,7 @@ import {
     signIn as puterSignIn,
     signOut as puterSignOut,
 } from "../lib/puter.action";
+import {DEFAULT_LOCALE, isLocale, LOCALE_STORAGE_KEY} from "../lib/i18n";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -25,13 +26,13 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap",
   },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fa">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -51,24 +52,34 @@ const DEFAULT_AUTH_STATE: AuthState = {
     isSignedIn: false,
     userName: null,
     userId: null,
+    locale: DEFAULT_LOCALE,
 }
 
 export default function App() {
     const [authState, setAuthState] = useState<AuthState>(DEFAULT_AUTH_STATE);
 
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const savedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+        if (isLocale(savedLocale)) {
+            setAuthState((prev) => ({ ...prev, locale: savedLocale }));
+        }
+    }, []);
+
     const refreshAuth = async () => {
         try {
             const user = await getCurrentUser();
 
-            setAuthState({
+            setAuthState((prev) => ({
+                ...prev,
                 isSignedIn: !!user,
                 userName: user?.username || null,
                 userId: user?.uuid || null,
-            });
+            }));
 
             return !!user;
         } catch {
-            setAuthState(DEFAULT_AUTH_STATE);
+            setAuthState((prev) => ({ ...DEFAULT_AUTH_STATE, locale: prev.locale }));
             return false;
         }
     }
@@ -87,11 +98,25 @@ export default function App() {
         return await refreshAuth();
     }
 
+    const setLocale = (locale: Locale) => {
+        setAuthState((prev) => ({ ...prev, locale }));
+        if (typeof window !== "undefined") {
+            window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+        }
+    };
+
+    const isRTL = authState.locale === "fa";
+    const languageLabel = isRTL ? "فارسی" : "English";
+
   return (
-      <main className="min-h-screen bg-background text-foreground relative z-10">
+      <main
+          className={`app-shell min-h-screen bg-background text-foreground relative z-10 ${isRTL ? "is-fa" : "is-en"}`}
+          dir={isRTL ? "rtl" : "ltr"}
+          lang={authState.locale}
+      >
         <Outlet
-            context={{ ...authState, refreshAuth, signIn, signOut }}
-        />;
+            context={{ ...authState, isRTL, languageLabel, refreshAuth, signIn, signOut, setLocale }}
+        />
       </main>
   )
 }

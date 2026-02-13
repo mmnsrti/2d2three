@@ -3,19 +3,22 @@ import Navbar from "../../components/Navbar";
 import {ArrowRight, ArrowUpRight, Clock, Layers} from "lucide-react";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
-import {useNavigate} from "react-router";
+import {useNavigate, useOutletContext} from "react-router";
 import {useEffect, useRef, useState} from "react";
 import {createProject, getProjects} from "../../lib/puter.action";
+import {t, toLocaleDateCode} from "../../lib/i18n";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "2d2three" },
+    { name: "description", content: "2d2three | Persian-first AI 2D to 3D visualizer" },
   ];
 }
 
 export default function Home() {
     const navigate = useNavigate();
+    const { locale } = useOutletContext<AuthContext>();
+    const copy = t[locale];
     const [projects, setProjects] = useState<DesignItem[]>([]);
     const isCreatingProjectRef = useRef(false);
 
@@ -25,7 +28,7 @@ export default function Home() {
             if(isCreatingProjectRef.current) return false;
             isCreatingProjectRef.current = true;
             const newId = Date.now().toString();
-            const name = `Residence ${newId}`;
+            const name = `${copy.projectNamePrefix} ${newId}`;
 
             const newItem = {
                 id: newId, name, sourceImage: base64Image,
@@ -76,22 +79,22 @@ export default function Home() {
                       <div className="pulse"></div>
                   </div>
 
-                  <p>Introducing Roomify 2.0</p>
+                  <p>{copy.heroBadge}</p>
               </div>
 
-              <h1>Build beautiful spaces at the speed of thought with Roomify</h1>
+              <h1>{copy.heroTitle}</h1>
 
               <p className="subtitle">
-                  Roomify is an AI-first design environment that helps you visualize, render, and ship architectural projects faster  than ever.
+                  {copy.heroSubtitle}
               </p>
 
               <div className="actions">
                   <a href="#upload" className="cta">
-                      Start Building <ArrowRight className="icon" />
+                      {copy.startBuilding} <ArrowRight className="icon" />
                   </a>
 
                   <Button variant="outline" size="lg" className="demo">
-                      Watch Demo
+                      {copy.watchDemo}
                   </Button>
               </div>
 
@@ -104,8 +107,8 @@ export default function Home() {
                               <Layers className="icon" />
                           </div>
 
-                          <h3>Upload your floor plan</h3>
-                          <p>Supports JPG, PNG, formats up to 10MB</p>
+                          <h3>{copy.uploadTitle}</h3>
+                          <p>{copy.uploadSubtitle}</p>
                       </div>
 
                       <Upload onComplete={handleUploadComplete} />
@@ -117,8 +120,8 @@ export default function Home() {
               <div className="section-inner">
                   <div className="section-head">
                       <div className="copy">
-                          <h2>Projects</h2>
-                          <p>Your latest work and shared community projects, all in one place.</p>
+                          <h2>{copy.projectsTitle}</h2>
+                          <p>{copy.projectsSubtitle}</p>
                       </div>
                   </div>
 
@@ -126,11 +129,11 @@ export default function Home() {
                       {projects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
                           <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
                               <div className="preview">
-                                  <img  src={renderedImage || sourceImage} alt="Project"
+                                  <img  src={renderedImage || sourceImage} alt={copy.projectLabel}
                                   />
 
                                   <div className="badge">
-                                      <span>Community</span>
+                                      <span>{copy.community}</span>
                                   </div>
                               </div>
 
@@ -140,8 +143,8 @@ export default function Home() {
 
                                       <div className="meta">
                                           <Clock size={12} />
-                                          <span>{new Date(timestamp).toLocaleDateString()}</span>
-                                          <span>By JS Mastery</span>
+                                          <span>{new Date(timestamp).toLocaleDateString(toLocaleDateCode(locale))}</span>
+                                          <span>{copy.byLabel} {copy.designerName}</span>
                                       </div>
                                   </div>
                                   <div className="arrow">

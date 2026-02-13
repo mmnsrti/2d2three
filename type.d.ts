@@ -1,7 +1,10 @@
+type Locale = "fa" | "en";
+
 interface AuthState {
     isSignedIn: boolean;
     userName: string | null;
     userId: string | null;
+    locale: Locale;
 }
 
 interface Material {
@@ -89,9 +92,13 @@ type AuthContext = {
     isSignedIn: boolean;
     userName: string | null;
     userId: string | null;
+    locale: Locale;
+    isRTL: boolean;
+    languageLabel: string;
     refreshAuth: () => Promise<boolean>;
     signIn: () => Promise<boolean>;
     signOut: () => Promise<boolean>;
+    setLocale: (locale: Locale) => void;
 };
 
 type AuthRequiredModalProps = {

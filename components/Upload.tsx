@@ -1,7 +1,8 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useRef, useState} from "react";
 import {useOutletContext} from "react-router";
 import {CheckCircle2, ImageIcon, UploadIcon} from "lucide-react";
 import {PROGRESS_INCREMENT, REDIRECT_DELAY_MS, PROGRESS_INTERVAL_MS} from "../lib/constants";
+import {t} from "../lib/i18n";
 
 interface UploadProps {
     onComplete?: (base64Data: string) => void;
@@ -14,7 +15,8 @@ const Upload = ({ onComplete }: UploadProps) => {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const { isSignedIn } = useOutletContext<AuthContext>();
+    const { isSignedIn, locale } = useOutletContext<AuthContext>();
+    const copy = t[locale];
 
     useEffect(() => {
         return () => {
@@ -119,10 +121,10 @@ const Upload = ({ onComplete }: UploadProps) => {
                         </div>
                         <p>
                             {isSignedIn ? (
-                                "Click to upload or just drag and drop"
-                            ): ("Sign in or sign up with Puter to upload")}
+                                copy.uploadSignedIn
+                            ): (copy.uploadSignedOut)}
                         </p>
-                        <p className="help">Maximum file size 50 MB.</p>
+                        <p className="help">{copy.uploadMaxSize}</p>
                     </div>
                 </div>
             ) : (
@@ -142,7 +144,7 @@ const Upload = ({ onComplete }: UploadProps) => {
                             <div className="bar" style={{ width: `${progress}%` }} />
 
                             <p className="status-text">
-                                {progress < 100 ? 'Analyzing Floor Plan...' : 'Redirecting...'}
+                                {progress < 100 ? copy.analyzing : copy.redirecting}
                             </p>
                         </div>
                     </div>

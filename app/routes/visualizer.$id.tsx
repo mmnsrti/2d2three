@@ -5,11 +5,13 @@ import {Box, Download, RefreshCcw, Share2, X} from "lucide-react";
 import Button from "../../components/ui/Button";
 import {createProject, getProjectById} from "../../lib/puter.action";
 import {ReactCompareSlider, ReactCompareSliderImage} from "react-compare-slider";
+import {t} from "../../lib/i18n";
 
 const VisualizerId = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { userId } = useOutletContext<AuthContext>()
+    const { userId, locale, setLocale } = useOutletContext<AuthContext>()
+    const copy = t[locale];
 
     const hasInitialGenerated = useRef(false);
 
@@ -25,7 +27,7 @@ const VisualizerId = () => {
 
         const link = document.createElement('a');
         link.href = currentImage;
-        link.download = `roomify-${id || 'design'}.png`;
+        link.download = `2d2three-${id || 'design'}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -116,20 +118,39 @@ const VisualizerId = () => {
                 <div className="brand">
                     <Box className="logo" />
 
-                    <span className="name">Roomify</span>
+                    <span className="name">{copy.brand}</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
-                    <X className="icon" /> Exit Editor
-                </Button>
+                <div className="topbar-actions">
+                    <div className="locale-switcher" role="tablist" aria-label="Language switch">
+                        <button
+                            type="button"
+                            className={locale === "fa" ? "active" : ""}
+                            onClick={() => setLocale("fa")}
+                        >
+                            فارسی
+                        </button>
+                        <button
+                            type="button"
+                            className={locale === "en" ? "active" : ""}
+                            onClick={() => setLocale("en")}
+                        >
+                            EN
+                        </button>
+                    </div>
+
+                    <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
+                        <X className="icon" /> {copy.exitEditor}
+                    </Button>
+                </div>
             </nav>
 
             <section className="content">
                 <div className="panel">
                     <div className="panel-header">
                         <div className="panel-meta">
-                            <p>Project</p>
-                            <h2>{project?.name || `Residence ${id}`}</h2>
-                            <p className="note">Created by You</p>
+                            <p>{copy.projectLabel}</p>
+                            <h2>{project?.name || `${copy.projectNamePrefix} ${id}`}</h2>
+                            <p className="note">{copy.createdByYou}</p>
                         </div>
 
                         <div className="panel-actions">
@@ -139,22 +160,22 @@ const VisualizerId = () => {
                                 className="export"
                                 disabled={!currentImage}
                             >
-                                <Download className="w-4 h-4 mr-2" /> Export
+                                <Download className="w-4 h-4 mr-2" /> {copy.export}
                             </Button>
                             <Button size="sm" onClick={() => {}} className="share">
                                 <Share2 className="w-4 h-4 mr-2" />
-                                Share
+                                {copy.share}
                             </Button>
                         </div>
                     </div>
 
                     <div className={`render-area ${isProcessing ? 'is-processing': ''}`}>
                         {currentImage ? (
-                            <img src={currentImage} alt="AI Render" className="render-img" />
+                            <img src={currentImage} alt={copy.aiRenderAlt} className="render-img" />
                         ) : (
                             <div className="render-placeholder">
                                 {project?.sourceImage && (
-                                    <img src={project?.sourceImage} alt="Original" className="render-fallback" />
+                                    <img src={project?.sourceImage} alt={copy.originalAlt} className="render-fallback" />
                                 )}
                             </div>
                         )}
@@ -163,8 +184,8 @@ const VisualizerId = () => {
                             <div className="render-overlay">
                                 <div className="rendering-card">
                                     <RefreshCcw className="spinner" />
-                                    <span className="title">Rendering...</span>
-                                    <span className="subtitle">Generating your 3D visualization</span>
+                                    <span className="title">{copy.rendering}</span>
+                                    <span className="subtitle">{copy.generating}</span>
                                 </div>
                             </div>
                         )}
@@ -175,10 +196,10 @@ const VisualizerId = () => {
                 <div className="panel compare">
                     <div className="panel-header">
                         <div className="panel-meta">
-                            <p>Comparison</p>
-                            <h3>Before and After</h3>
+                            <p>{copy.comparison}</p>
+                            <h3>{copy.beforeAfter}</h3>
                         </div>
-                        <div className="hint">Drag to compare</div>
+                        <div className="hint">{copy.dragToCompare}</div>
                     </div>
 
                     <div className="compare-stage">
@@ -187,16 +208,16 @@ const VisualizerId = () => {
                                 defaultValue={50}
                                 style={{ width: '100%', height: 'auto' }}
                                 itemOne={
-                                    <ReactCompareSliderImage src={project?.sourceImage} alt="before" className="compare-img" />
+                                    <ReactCompareSliderImage src={project?.sourceImage} alt={copy.beforeAlt} className="compare-img" />
                                 }
                                 itemTwo={
-                                    <ReactCompareSliderImage src={currentImage} alt="after" className="compare-img" />
+                                    <ReactCompareSliderImage src={currentImage} alt={copy.afterAlt} className="compare-img" />
                                 }
                             />
                         ) : (
                             <div className="compare-fallback">
                                 {project?.sourceImage && (
-                                    <img src={project.sourceImage} alt="Before" className="compare-img" />
+                                    <img src={project.sourceImage} alt={copy.beforeAlt} className="compare-img" />
                                 )}
                             </div>
                         )}

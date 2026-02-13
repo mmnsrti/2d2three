@@ -30,7 +30,7 @@ const normalizeProject = (item: unknown): DesignItem | null => {
         id: String(candidate.id),
         sourceImage: String(candidate.sourceImage),
         timestamp: Number(candidate.timestamp || Date.now()),
-        name: candidate.name ?? `Residence ${candidate.id}`,
+        name: candidate.name ?? `2d2three Project ${candidate.id}`,
     };
 };
 
