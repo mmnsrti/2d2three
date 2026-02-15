@@ -159,7 +159,7 @@ export const createProject = async ({ item, visibility = "private" }: CreateProj
 
     if(!canUseWorker()) {
         if (!PUTER_WORKER_URL) {
-            console.warn("Missing VITE_PUTER_WORKER_URL; saved project to local cache only.");
+            console.warn("Missing worker URL configuration; saved project to local cache only.");
         }
         return fallbackProject;
     }
@@ -175,7 +175,7 @@ export const createProject = async ({ item, visibility = "private" }: CreateProj
 
         if(!response.ok) {
             if (await isMissingWorkerRoute(response)) {
-                markWorkerUnavailable("Puter worker routes are unavailable. Using local project storage.");
+                markWorkerUnavailable("Cloud worker routes are unavailable. Using local project storage.");
             }
             console.error('failed to save the project', await response.text());
             return fallbackProject;
@@ -191,7 +191,7 @@ export const createProject = async ({ item, visibility = "private" }: CreateProj
 
         return savedProject;
     } catch (e) {
-        markWorkerUnavailable("Puter worker request failed. Falling back to local project storage.");
+        markWorkerUnavailable("Cloud worker request failed. Falling back to local project storage.");
         console.error("Failed to save project in worker, using local cache.", e);
         return fallbackProject;
     }
@@ -200,7 +200,7 @@ export const createProject = async ({ item, visibility = "private" }: CreateProj
 export const getProjects = async () => {
     if(!canUseWorker()) {
         if (!PUTER_WORKER_URL) {
-            console.warn("Missing VITE_PUTER_WORKER_URL; loading history from local cache.");
+            console.warn("Missing worker URL configuration; loading history from local cache.");
         }
         return await listProjectsFromLocal();
     }
@@ -210,7 +210,7 @@ export const getProjects = async () => {
 
         if(!response.ok) {
             if (await isMissingWorkerRoute(response)) {
-                markWorkerUnavailable("Puter worker list route is unavailable. Loading projects from local cache.");
+                markWorkerUnavailable("Cloud worker list route is unavailable. Loading projects from local cache.");
             }
             console.error('Failed to fetch history', await response.text());
             return await listProjectsFromLocal();
@@ -228,7 +228,7 @@ export const getProjects = async () => {
 
         return projects;
     } catch (e) {
-        markWorkerUnavailable("Puter worker list request failed. Loading projects from local cache.");
+        markWorkerUnavailable("Cloud worker list request failed. Loading projects from local cache.");
         console.error("Failed to get projects from worker, using local cache.", e);
         return await listProjectsFromLocal();
     }
@@ -237,7 +237,7 @@ export const getProjects = async () => {
 export const getProjectById = async ({ id }: { id: string }) => {
     if (!canUseWorker()) {
         if (!PUTER_WORKER_URL) {
-            console.warn("Missing VITE_PUTER_WORKER_URL; loading project from local cache.");
+            console.warn("Missing worker URL configuration; loading project from local cache.");
         }
         return await getProjectFromLocal(id);
     }
@@ -250,7 +250,7 @@ export const getProjectById = async ({ id }: { id: string }) => {
 
         if (!response.ok) {
             if (await isMissingWorkerRoute(response)) {
-                markWorkerUnavailable("Puter worker get route is unavailable. Loading projects from local cache.");
+                markWorkerUnavailable("Cloud worker get route is unavailable. Loading projects from local cache.");
             }
             console.error("Failed to fetch project:", await response.text());
             return await getProjectFromLocal(id);
@@ -268,7 +268,7 @@ export const getProjectById = async ({ id }: { id: string }) => {
 
         return project;
     } catch (error) {
-        markWorkerUnavailable("Puter worker get request failed. Loading projects from local cache.");
+        markWorkerUnavailable("Cloud worker get request failed. Loading projects from local cache.");
         console.error("Failed to fetch project from worker, using local cache.", error);
         return await getProjectFromLocal(id);
     }
@@ -291,7 +291,7 @@ export const deleteProjectById = async ({ id }: { id: string }) => {
 
         if (!response.ok) {
             if (await isMissingWorkerRoute(response)) {
-                markWorkerUnavailable("Puter worker delete route is unavailable. Local delete only.");
+                markWorkerUnavailable("Cloud worker delete route is unavailable. Local delete only.");
             }
             console.error("Failed to delete project on worker:", await response.text());
             return localDeleted;
@@ -300,7 +300,7 @@ export const deleteProjectById = async ({ id }: { id: string }) => {
         markWorkerAvailable();
         return true;
     } catch (error) {
-        markWorkerUnavailable("Puter worker delete request failed. Local delete only.");
+        markWorkerUnavailable("Cloud worker delete request failed. Local delete only.");
         console.error("Failed to delete project on worker, falling back to local delete.", error);
         return localDeleted;
     }

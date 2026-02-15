@@ -123,40 +123,14 @@ export default function Home() {
             priceToman: 0,
             highlight: false,
             description: copy.planStarterDesc,
-            bestFor: copy.planStarterBestFor,
-            renders: copy.planStarterRenders,
-            storage: copy.planStarterStorage,
-            queue: copy.planStarterQueue,
-            note: copy.planStarterNote,
-            cta: copy.planCta,
             features: [copy.featurePuterAuth, copy.featurePrivateProjects, copy.featurePuterKvStorage, copy.featureLocalFailover],
         },
         {
-            id: "freelancer",
-            name: copy.freelancerPlan,
-            priceToman: 299000,
-            highlight: false,
-            description: copy.planFreelancerDesc,
-            bestFor: copy.planFreelancerBestFor,
-            renders: copy.planFreelancerRenders,
-            storage: copy.planFreelancerStorage,
-            queue: copy.planFreelancerQueue,
-            note: copy.planFreelancerNote,
-            cta: copy.planCta,
-            features: [copy.featurePuterAuth, copy.featurePuterHosting, copy.featureShareLinkCopy, copy.featureHistory],
-        },
-        {
-            id: "studio",
-            name: copy.studioPlan,
+            id: "pro",
+            name: copy.proPlan,
             priceToman: 790000,
             highlight: true,
-            description: copy.planStudioDesc,
-            bestFor: copy.planStudioBestFor,
-            renders: copy.planStudioRenders,
-            storage: copy.planStudioStorage,
-            queue: copy.planStudioQueue,
-            note: copy.planStudioNote,
-            cta: copy.planCta,
+            description: copy.planProDesc,
             features: [copy.featurePuterWorker, copy.featureFasterRenders, copy.featurePriorityQueue, copy.featurePuterHosting],
         },
         {
@@ -165,13 +139,7 @@ export default function Home() {
             priceToman: 1490000,
             highlight: false,
             description: copy.planAgencyDesc,
-            bestFor: copy.planAgencyBestFor,
-            renders: copy.planAgencyRenders,
-            storage: copy.planAgencyStorage,
-            queue: copy.planAgencyQueue,
-            note: copy.planAgencyNote,
-            cta: copy.planContactCta,
-            features: [copy.featureDedicatedWorker, copy.featureApiAccess, copy.featurePrioritySupport, copy.featureTeamWorkspace],
+            features: [copy.featureDedicatedWorker, copy.featurePrioritySupport, copy.featureTeamWorkspace, copy.featureHistory],
         },
     ];
     const workflowSteps = [
@@ -466,35 +434,21 @@ export default function Home() {
                                   <span>{copy.pricingCurrency} / {copy.pricingMonthly}</span>
                               </p>
 
-                              <div className="plan-details">
-                                  <div className="detail">
-                                      <span>{copy.planBestForLabel}</span>
-                                      <strong>{plan.bestFor}</strong>
-                                  </div>
-                                  <div className="detail">
-                                      <span>{copy.planRendersLabel}</span>
-                                      <strong>{plan.renders}</strong>
-                                  </div>
-                                  <div className="detail">
-                                      <span>{copy.planStorageLabel}</span>
-                                      <strong>{plan.storage}</strong>
-                                  </div>
-                                  <div className="detail">
-                                      <span>{copy.planQueueLabel}</span>
-                                      <strong>{plan.queue}</strong>
-                                  </div>
-                              </div>
-
                               <ul className="features">
                                   {plan.features.map((feature) => (
                                       <li key={feature}>{feature}</li>
                                   ))}
                               </ul>
 
-                              <p className="plan-note">{plan.note}</p>
-                              <Button size="sm" className="plan-cta">{plan.cta}</Button>
+                              <Button size="sm" className="plan-cta">{copy.planCta}</Button>
                           </article>
                       ))}
+                  </div>
+
+                  <div className="mt-8 flex justify-center">
+                      <Button size="sm" variant="outline" onClick={() => navigate("/pricing")}>
+                          {copy.pricingDetailsCta}
+                      </Button>
                   </div>
               </div>
           </section>

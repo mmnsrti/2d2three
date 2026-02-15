@@ -26,12 +26,12 @@ const Navbar = () => {
     const navLinks = useMemo<NavLinkItem[]>(
         () => [
             { label: copy.navProduct, href: sectionHref("product"), isActive: isSectionActive("product") },
-            { label: copy.navPricing, href: sectionHref("pricing"), isActive: isSectionActive("pricing") },
+            { label: copy.navPricing, href: "/pricing", isActive: pathname.startsWith("/pricing") },
             { label: copy.navCommunity, href: sectionHref("community"), isActive: isSectionActive("community") },
             { label: copy.navFaq, href: sectionHref("faq"), isActive: isSectionActive("faq") },
             ...(isSignedIn ? [{ label: copy.navProjects, href: "/projects", isActive: pathname.startsWith("/projects") }] : []),
         ],
-        [copy.navCommunity, copy.navFaq, copy.navPricing, copy.navProduct, copy.navProjects, hash, isHome, isSignedIn, pathname],
+        [copy.navCommunity, copy.navFaq, copy.navPricing, copy.navProduct, copy.navProjects, pathname, isSectionActive, isSignedIn],
     );
 
     useEffect(() => {
@@ -43,7 +43,7 @@ const Navbar = () => {
             try {
                 await signOut();
             } catch (e) {
-                console.error(`Puter sign out failed: ${e}`);
+                console.error(`Sign out failed: ${e}`);
             }
 
             return;
@@ -52,7 +52,7 @@ const Navbar = () => {
         try {
             await signIn();
         } catch (e) {
-            console.error(`Puter sign in failed: ${e}`);
+            console.error(`Sign in failed: ${e}`);
         }
     };
 
