@@ -427,6 +427,20 @@ const VisualizerId = () => {
                             </Button>
                         </div>
 
+                        <div className="zoom-slider">
+                            <label htmlFor="zoom-range">{copy.zoomLevel}</label>
+                            <input
+                                id="zoom-range"
+                                type="range"
+                                min={MIN_ZOOM}
+                                max={MAX_ZOOM}
+                                step={ZOOM_STEP}
+                                value={zoom}
+                                onChange={(event) => applyZoom(Number(event.target.value))}
+                                disabled={!currentImage}
+                            />
+                        </div>
+
                         <span className="zoom-value">{Math.round(zoom * 100)}%</span>
                         <span className="zoom-hint">{copy.zoomHint}</span>
                     </div>

@@ -1,24 +1,37 @@
 import {Box, Menu, X} from "lucide-react";
 import Button from "./ui/Button";
-import {useLocation, useOutletContext} from "react-router";
+import {Link, useLocation, useOutletContext} from "react-router";
 import {useEffect, useMemo, useState} from "react";
 import {t} from "../lib/i18n";
 
+type NavLinkItem = {
+    label: string;
+    href: string;
+    isActive: boolean;
+};
+
 const Navbar = () => {
-    const { pathname } = useLocation();
+    const { pathname, hash } = useLocation();
     const { isSignedIn, userName, signIn, signOut, locale, setLocale } = useOutletContext<AuthContext>()
     const copy = t[locale];
     const [isMobileOpen, setIsMobileOpen] = useState(false);
-    const sectionHref = (id: string) => (pathname === "/" ? `#${id}` : `/#${id}`);
+    const isHome = pathname === "/";
+    const sectionHref = (id: string) => (isHome ? `#${id}` : `/#${id}`);
     const ctaHref = sectionHref("upload");
-    const navLinks = useMemo(
+    const isSectionActive = (id: string) => {
+        if (!isHome) return false;
+        if (!hash) return id === "product";
+        return hash === `#${id}`;
+    };
+    const navLinks = useMemo<NavLinkItem[]>(
         () => [
-            { label: copy.navProduct, href: sectionHref("product"), isActive: pathname === "/" },
-            { label: copy.navPricing, href: sectionHref("pricing"), isActive: pathname === "/" },
-            { label: copy.navCommunity, href: sectionHref("community"), isActive: pathname === "/" },
+            { label: copy.navProduct, href: sectionHref("product"), isActive: isSectionActive("product") },
+            { label: copy.navPricing, href: sectionHref("pricing"), isActive: isSectionActive("pricing") },
+            { label: copy.navCommunity, href: sectionHref("community"), isActive: isSectionActive("community") },
+            { label: copy.navFaq, href: sectionHref("faq"), isActive: isSectionActive("faq") },
             ...(isSignedIn ? [{ label: copy.navProjects, href: "/projects", isActive: pathname.startsWith("/projects") }] : []),
         ],
-        [copy.navCommunity, copy.navPricing, copy.navProduct, copy.navProjects, isSignedIn, pathname],
+        [copy.navCommunity, copy.navFaq, copy.navPricing, copy.navProduct, copy.navProjects, hash, isHome, isSignedIn, pathname],
     );
 
     useEffect(() => {
@@ -47,19 +60,21 @@ const Navbar = () => {
         <header className="navbar">
             <nav className="inner">
                 <div className="left">
-                    <a href="/" className="brand">
+                    <Link to="/" className="brand">
                         <Box  className="logo" />
 
                         <span className="name">
                             {copy.brand}
                         </span>
-                    </a>
+                    </Link>
 
                     <ul className="links">
                         {navLinks.map((link) => (
-                            <a key={link.href} href={link.href} className={link.isActive ? "active" : ""}>
-                                {link.label}
-                            </a>
+                            <li key={link.href}>
+                                <Link to={link.href} className={link.isActive ? "active" : ""}>
+                                    {link.label}
+                                </Link>
+                            </li>
                         ))}
                     </ul>
                 </div>
@@ -69,6 +84,7 @@ const Navbar = () => {
                         type="button"
                         className="mobile-toggle"
                         aria-label="Toggle navigation"
+                        aria-expanded={isMobileOpen}
                         onClick={() => setIsMobileOpen((prev) => !prev)}
                     >
                         {isMobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -107,25 +123,26 @@ const Navbar = () => {
                                 {copy.logIn}
                             </Button>
 
-                            <a href={ctaHref} className="cta">{copy.getStarted}</a>
+                            <Link to={ctaHref} className="cta">{copy.getStarted}</Link>
                         </>
                     )}
                 </div>
             </nav>
 
             <div className={`mobile-panel ${isMobileOpen ? "open" : ""}`}>
-                <div className="mobile-links">
+                <ul className="mobile-links">
                     {navLinks.map((link) => (
-                        <a
-                            key={`mobile-${link.href}`}
-                            href={link.href}
-                            className={link.isActive ? "active" : ""}
-                            onClick={() => setIsMobileOpen(false)}
-                        >
-                            {link.label}
-                        </a>
+                        <li key={`mobile-${link.href}`}>
+                            <Link
+                                to={link.href}
+                                className={link.isActive ? "active" : ""}
+                                onClick={() => setIsMobileOpen(false)}
+                            >
+                                {link.label}
+                            </Link>
+                        </li>
                     ))}
-                </div>
+                </ul>
             </div>
         </header>
     )

@@ -133,6 +133,13 @@ export default function App() {
         }
     };
 
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+        const isRTLDocument = authState.locale === "fa";
+        document.documentElement.lang = authState.locale;
+        document.documentElement.dir = isRTLDocument ? "rtl" : "ltr";
+    }, [authState.locale]);
+
     const isRTL = authState.locale === "fa";
     const languageLabel = isRTL ? "فارسی" : "English";
 

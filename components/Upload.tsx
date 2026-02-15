@@ -15,7 +15,7 @@ const Upload = ({ onComplete }: UploadProps) => {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const { isSignedIn, locale } = useOutletContext<AuthContext>();
+    const { isSignedIn, locale, signIn } = useOutletContext<AuthContext>();
     const copy = t[locale];
 
     useEffect(() => {
@@ -98,18 +98,27 @@ const Upload = ({ onComplete }: UploadProps) => {
         }
     };
 
+    const handleSignIn = async () => {
+        try {
+            await signIn();
+        } catch (error) {
+            console.error("Sign in failed", error);
+        }
+    };
+
     return (
         <div className="upload">
             {!file ? (
                 <div
                     className={`dropzone ${isDragging ? 'is-dragging' : ''}`}
+                    aria-disabled={!isSignedIn}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                 >
                     <input
                         type="file"
-                        className="drop-input"
+                        className={`drop-input ${!isSignedIn ? "is-disabled" : ""}`}
                         accept=".jpg,.jpeg,.png,.webp"
                         disabled={!isSignedIn}
                         onChange={handleChange}
@@ -125,6 +134,15 @@ const Upload = ({ onComplete }: UploadProps) => {
                             ): (copy.uploadSignedOut)}
                         </p>
                         <p className="help">{copy.uploadMaxSize}</p>
+                        {!isSignedIn && (
+                            <button
+                                type="button"
+                                className="signin-cta"
+                                onClick={() => void handleSignIn()}
+                            >
+                                {copy.uploadSignInCta}
+                            </button>
+                        )}
                     </div>
                 </div>
             ) : (

@@ -2,8 +2,8 @@ import type { Route } from "./+types/projects";
 import {ArrowUpRight, Clock, CopyPlus, Search, Trash2} from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Button from "../../components/ui/Button";
-import {useEffect, useMemo, useState} from "react";
-import {useNavigate, useOutletContext} from "react-router";
+import {type KeyboardEvent, useEffect, useMemo, useState} from "react";
+import {Link, useNavigate, useOutletContext} from "react-router";
 import {createProject, deleteProjectById, getProjects} from "../../lib/puter.action";
 import {t, toLocaleDateCode} from "../../lib/i18n";
 
@@ -114,6 +114,17 @@ export default function Projects() {
         }
     };
 
+    const openProject = (projectId: string) => {
+        navigate(`/visualizer/${projectId}`);
+    };
+
+    const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>, projectId: string) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openProject(projectId);
+        }
+    };
+
     if (!isSignedIn) {
         return (
             <div className="home projects-page">
@@ -125,7 +136,7 @@ export default function Projects() {
                                 <p>{copy.signInForProjects}</p>
                                 <div className="flex items-center justify-center gap-2">
                                     <Button size="sm" onClick={() => void signIn()}>{copy.logIn}</Button>
-                                    <a href="/#projects">{copy.watchDemo}</a>
+                                    <Link to="/#projects">{copy.watchDemo}</Link>
                                 </div>
                             </div>
                         </div>
@@ -209,9 +220,17 @@ export default function Projects() {
                             ))
                         ) : filteredProjects.length > 0 ? (
                             filteredProjects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
-                                <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
+                                <div
+                                    key={id}
+                                    className="project-card group"
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`${copy.projectLabel}: ${name || id}`}
+                                    onClick={() => openProject(id)}
+                                    onKeyDown={(event) => handleCardKeyDown(event, id)}
+                                >
                                     <div className="preview">
-                                        <img src={renderedImage || sourceImage} alt={copy.projectLabel} />
+                                        <img src={renderedImage || sourceImage} alt={copy.projectLabel} loading="lazy" decoding="async" />
 
                                         <div className="badge">
                                             <span>{renderedImage ? copy.filterRendered : copy.filterPending}</span>
@@ -220,6 +239,7 @@ export default function Projects() {
                                         <div className="card-actions">
                                             <button
                                                 type="button"
+                                                aria-label={`${copy.duplicate} ${name || id}`}
                                                 title={copy.duplicate}
                                                 disabled={busyProjectId === id}
                                                 onClick={(event) => {
@@ -231,6 +251,7 @@ export default function Projects() {
                                             </button>
                                             <button
                                                 type="button"
+                                                aria-label={`${copy.delete} ${name || id}`}
                                                 title={copy.delete}
                                                 disabled={busyProjectId === id}
                                                 onClick={(event) => {

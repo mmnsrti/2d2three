@@ -1,10 +1,10 @@
 import type { Route } from "./+types/home";
 import Navbar from "../../components/Navbar";
-import {ArrowRight, ArrowUpRight, Clock, Layers} from "lucide-react";
+import {ArrowRight, ArrowUpRight, Clock, Layers, Share2, Upload as UploadIcon, Wand2} from "lucide-react";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
 import {useNavigate, useOutletContext} from "react-router";
-import {useEffect, useMemo, useRef, useState} from "react";
+import {type KeyboardEvent, useEffect, useMemo, useRef, useState} from "react";
 import {createProject, getProjects} from "../../lib/puter.action";
 import {t, toLocaleDateCode} from "../../lib/i18n";
 import {SITE_NAME, SITE_URL} from "../../lib/constants";
@@ -132,6 +132,37 @@ export default function Home() {
             features: [copy.featurePrivateProjects, copy.featureFasterRenders, copy.featurePriorityQueue],
         },
     ];
+    const workflowSteps = [
+        {
+            id: "upload",
+            icon: UploadIcon,
+            title: copy.workflowStepUploadTitle,
+            description: copy.workflowStepUploadText,
+        },
+        {
+            id: "render",
+            icon: Wand2,
+            title: copy.workflowStepRenderTitle,
+            description: copy.workflowStepRenderText,
+        },
+        {
+            id: "share",
+            icon: Share2,
+            title: copy.workflowStepShareTitle,
+            description: copy.workflowStepShareText,
+        },
+    ];
+
+    const openProject = (projectId: string) => {
+        navigate(`/visualizer/${projectId}`);
+    };
+
+    const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>, projectId: string) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openProject(projectId);
+        }
+    };
 
     const softwareSchema = {
         "@context": "https://schema.org",
@@ -229,6 +260,27 @@ export default function Home() {
               </div>
           </section>
 
+          <section className="workflow" id="workflow">
+              <div className="section-inner">
+                  <div className="section-head">
+                      <h2>{copy.workflowTitle}</h2>
+                      <p>{copy.workflowSubtitle}</p>
+                  </div>
+
+                  <div className="workflow-grid">
+                      {workflowSteps.map(({id, icon: Icon, title, description}) => (
+                          <article key={id} className="workflow-card">
+                              <div className="step-icon">
+                                  <Icon className="icon" />
+                              </div>
+                              <h3>{title}</h3>
+                              <p>{description}</p>
+                          </article>
+                      ))}
+                  </div>
+              </div>
+          </section>
+
           <section className="projects" id="projects">
               <div className="section-inner">
                   <div className="section-head">
@@ -265,9 +317,17 @@ export default function Home() {
                   <div className="projects-grid">
                       {isDemoMode ? (
                           visibleProjects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
-                              <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
+                              <div
+                                  key={id}
+                                  className="project-card group"
+                                  role="button"
+                                  tabIndex={0}
+                                  aria-label={`${copy.projectLabel}: ${name}`}
+                                  onClick={() => openProject(id)}
+                                  onKeyDown={(event) => handleCardKeyDown(event, id)}
+                              >
                                   <div className="preview">
-                                      <img src={renderedImage || sourceImage} alt={copy.projectLabel} />
+                                      <img src={renderedImage || sourceImage} alt={copy.projectLabel} loading="lazy" decoding="async" />
                                       <div className="badge">
                                           <span>{copy.demo}</span>
                                       </div>
@@ -294,9 +354,17 @@ export default function Home() {
                           ))
                       ) : visibleProjects.length > 0 ? (
                           visibleProjects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
-                              <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
+                              <div
+                                  key={id}
+                                  className="project-card group"
+                                  role="button"
+                                  tabIndex={0}
+                                  aria-label={`${copy.projectLabel}: ${name}`}
+                                  onClick={() => openProject(id)}
+                                  onKeyDown={(event) => handleCardKeyDown(event, id)}
+                              >
                                   <div className="preview">
-                                      <img src={renderedImage || sourceImage} alt={copy.projectLabel} />
+                                      <img src={renderedImage || sourceImage} alt={copy.projectLabel} loading="lazy" decoding="async" />
 
                                       <div className="badge">
                                           <span>{renderedImage ? copy.filterRendered : copy.filterPending}</span>
@@ -394,22 +462,22 @@ export default function Home() {
           <section className="faq" id="faq">
               <div className="section-inner">
                   <div className="section-head">
-                      <h2>سوالات متداول</h2>
-                      <p>پاسخ سریع به سوالات رایج کاربران ایرانی</p>
+                      <h2>{copy.faqTitle}</h2>
+                      <p>{copy.faqSubtitle}</p>
                   </div>
 
                   <div className="faq-list">
                       <article className="faq-item">
-                          <h3>2d2three چه کاری انجام می دهد؟</h3>
-                          <p>این پلتفرم پلان های دو بعدی را به خروجی سه بعدی قابل ارائه تبدیل می کند.</p>
+                          <h3>{copy.faqOneQuestion}</h3>
+                          <p>{copy.faqOneAnswer}</p>
                       </article>
                       <article className="faq-item">
-                          <h3>برای استفاده نیاز به نصب نرم افزار داریم؟</h3>
-                          <p>خیر، همه چیز تحت وب است و از طریق مرورگر کار می کند.</p>
+                          <h3>{copy.faqTwoQuestion}</h3>
+                          <p>{copy.faqTwoAnswer}</p>
                       </article>
                       <article className="faq-item">
-                          <h3>این ابزار برای چه کسانی مناسب است؟</h3>
-                          <p>معماران، طراحان داخلی، مشاوران املاک و تیم های ساختمانی که نیاز به خروجی سریع دارند.</p>
+                          <h3>{copy.faqThreeQuestion}</h3>
+                          <p>{copy.faqThreeAnswer}</p>
                       </article>
                   </div>
               </div>
