@@ -114,22 +114,64 @@ export default function Home() {
     const isDemoMode = !isSignedIn;
     const hasMoreProjects = isSignedIn && projects.length > MAIN_PAGE_LIMIT;
 
+    const formatToman = (amount: number) => new Intl.NumberFormat(toLocaleDateCode(locale)).format(amount);
+
     const pricingPlans = [
         {
             id: "starter",
             name: copy.starterPlan,
-            price: "$0",
+            priceToman: 0,
             highlight: false,
             description: copy.planStarterDesc,
-            features: [copy.featurePrivateProjects, copy.featureHistory],
+            bestFor: copy.planStarterBestFor,
+            renders: copy.planStarterRenders,
+            storage: copy.planStarterStorage,
+            queue: copy.planStarterQueue,
+            note: copy.planStarterNote,
+            cta: copy.planCta,
+            features: [copy.featurePuterAuth, copy.featurePrivateProjects, copy.featurePuterKvStorage, copy.featureLocalFailover],
         },
         {
-            id: "pro",
-            name: copy.proPlan,
-            price: "$29",
+            id: "freelancer",
+            name: copy.freelancerPlan,
+            priceToman: 299000,
+            highlight: false,
+            description: copy.planFreelancerDesc,
+            bestFor: copy.planFreelancerBestFor,
+            renders: copy.planFreelancerRenders,
+            storage: copy.planFreelancerStorage,
+            queue: copy.planFreelancerQueue,
+            note: copy.planFreelancerNote,
+            cta: copy.planCta,
+            features: [copy.featurePuterAuth, copy.featurePuterHosting, copy.featureShareLinkCopy, copy.featureHistory],
+        },
+        {
+            id: "studio",
+            name: copy.studioPlan,
+            priceToman: 790000,
             highlight: true,
-            description: copy.planProDesc,
-            features: [copy.featurePrivateProjects, copy.featureFasterRenders, copy.featurePriorityQueue],
+            description: copy.planStudioDesc,
+            bestFor: copy.planStudioBestFor,
+            renders: copy.planStudioRenders,
+            storage: copy.planStudioStorage,
+            queue: copy.planStudioQueue,
+            note: copy.planStudioNote,
+            cta: copy.planCta,
+            features: [copy.featurePuterWorker, copy.featureFasterRenders, copy.featurePriorityQueue, copy.featurePuterHosting],
+        },
+        {
+            id: "agency",
+            name: copy.agencyPlan,
+            priceToman: 1490000,
+            highlight: false,
+            description: copy.planAgencyDesc,
+            bestFor: copy.planAgencyBestFor,
+            renders: copy.planAgencyRenders,
+            storage: copy.planAgencyStorage,
+            queue: copy.planAgencyQueue,
+            note: copy.planAgencyNote,
+            cta: copy.planContactCta,
+            features: [copy.featureDedicatedWorker, copy.featureApiAccess, copy.featurePrioritySupport, copy.featureTeamWorkspace],
         },
     ];
     const workflowSteps = [
@@ -173,10 +215,12 @@ export default function Home() {
         inLanguage: "fa-IR",
         url: SITE_URL,
         description: "ابزار فارسی تبدیل پلان دو بعدی به نمای سه بعدی با هوش مصنوعی برای معماران و طراحان داخلی ایران.",
-        offers: [
-            { "@type": "Offer", name: "Starter", price: "0", priceCurrency: "USD" },
-            { "@type": "Offer", name: "Pro", price: "29", priceCurrency: "USD" },
-        ],
+        offers: pricingPlans.map((plan) => ({
+            "@type": "Offer",
+            name: plan.name,
+            price: String(plan.priceToman * 10),
+            priceCurrency: "IRR",
+        })),
     };
 
     const faqSchema = {
@@ -418,9 +462,28 @@ export default function Home() {
                               <h3>{plan.name}</h3>
                               <p className="desc">{plan.description}</p>
                               <p className="price">
-                                  <strong>{plan.price}</strong>
-                                  <span>{plan.price === copy.planCustom ? "" : `/${copy.pricingMonthly}`}</span>
+                                  <strong>{formatToman(plan.priceToman)}</strong>
+                                  <span>{copy.pricingCurrency} / {copy.pricingMonthly}</span>
                               </p>
+
+                              <div className="plan-details">
+                                  <div className="detail">
+                                      <span>{copy.planBestForLabel}</span>
+                                      <strong>{plan.bestFor}</strong>
+                                  </div>
+                                  <div className="detail">
+                                      <span>{copy.planRendersLabel}</span>
+                                      <strong>{plan.renders}</strong>
+                                  </div>
+                                  <div className="detail">
+                                      <span>{copy.planStorageLabel}</span>
+                                      <strong>{plan.storage}</strong>
+                                  </div>
+                                  <div className="detail">
+                                      <span>{copy.planQueueLabel}</span>
+                                      <strong>{plan.queue}</strong>
+                                  </div>
+                              </div>
 
                               <ul className="features">
                                   {plan.features.map((feature) => (
@@ -428,7 +491,8 @@ export default function Home() {
                                   ))}
                               </ul>
 
-                              <Button size="sm" className="plan-cta">{copy.planCta}</Button>
+                              <p className="plan-note">{plan.note}</p>
+                              <Button size="sm" className="plan-cta">{plan.cta}</Button>
                           </article>
                       ))}
                   </div>

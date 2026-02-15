@@ -880,25 +880,25 @@
             }
 
             .plan-grid {
-                @apply grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto;
+                @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto;
             }
 
             .plan-card {
-                @apply relative bg-white border border-stone-200 rounded-2xl p-6 shadow-sm;
+                @apply relative bg-white border border-stone-200 rounded-2xl p-6 shadow-sm flex flex-col;
 
                 h3 {
                     @apply text-2xl font-serif text-stone-900;
                 }
 
                 .desc {
-                    @apply text-sm text-slate-500 mt-3 min-h-10;
+                    @apply text-sm text-slate-500 mt-3 min-h-12;
                 }
 
                 .price {
-                    @apply mt-5 mb-4 flex items-end gap-1;
+                    @apply mt-5 mb-4 flex items-end gap-2;
 
                     strong {
-                        @apply text-4xl text-stone-900 font-bold leading-none;
+                        @apply text-3xl xl:text-4xl text-stone-900 font-bold leading-none;
                     }
 
                     span {
@@ -906,8 +906,24 @@
                     }
                 }
 
+                .plan-details {
+                    @apply grid grid-cols-1 gap-2 mb-4 p-3 rounded-xl border border-stone-200 bg-stone-50;
+
+                    .detail {
+                        @apply flex items-center justify-between gap-2;
+
+                        span {
+                            @apply text-[11px] text-slate-500;
+                        }
+
+                        strong {
+                            @apply text-xs text-stone-900 font-semibold text-right;
+                        }
+                    }
+                }
+
                 .features {
-                    @apply space-y-2 mb-6;
+                    @apply space-y-2 mb-4;
 
                     li {
                         @apply text-sm text-slate-700 flex items-center gap-2;
@@ -919,8 +935,12 @@
                     }
                 }
 
+                .plan-note {
+                    @apply text-xs text-slate-500 mb-4;
+                }
+
                 .plan-cta {
-                    @apply bg-primary text-white hover:bg-orange-800;
+                    @apply bg-primary text-white hover:bg-orange-800 mt-auto;
                 }
             }
 
