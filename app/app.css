@@ -189,11 +189,19 @@
                     a {
                         @apply text-sm font-medium text-slate-500 hover:text-stone-900 transition-colors;
                     }
+
+                    a.active {
+                        @apply text-stone-900;
+                    }
                 }
             }
 
             .actions {
                 @apply flex items-center space-x-4;
+
+                .mobile-toggle {
+                    @apply inline-flex md:hidden items-center justify-center h-8 w-8 rounded-md border border-orange-200 bg-white text-slate-700;
+                }
 
                 .locale-switcher {
                     @apply hidden sm:inline-flex items-center bg-white border border-orange-200 rounded-xl p-1 shadow-sm;
@@ -208,7 +216,7 @@
                 }
 
                 .greeting {
-                    @apply text-xs font-semibold tracking-wide text-slate-500;
+                    @apply hidden lg:inline text-xs font-semibold tracking-wide text-slate-500;
                 }
 
                 .btn {
@@ -223,6 +231,31 @@
                     @apply inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 text-xs tracking-wide bg-primary text-white hover:bg-orange-700 shadow-sm;
                 }
             }
+        }
+
+        .mobile-panel {
+            @apply md:hidden max-w-7xl mx-auto px-4;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease, opacity 0.2s ease;
+
+            .mobile-links {
+                @apply mt-2 mb-1 rounded-xl border border-orange-200 bg-white/95 shadow-sm p-2;
+
+                a {
+                    @apply block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-orange-50;
+                }
+
+                a.active {
+                    @apply bg-orange-50 text-stone-900;
+                }
+            }
+        }
+
+        .mobile-panel.open {
+            max-height: 240px;
+            opacity: 1;
         }
     }
 
@@ -644,6 +677,10 @@
                     }
                 }
 
+                .projects-note {
+                    @apply text-xs text-slate-500 mb-5;
+                }
+
                 .loading {
                     @apply flex items-center justify-center text-sm text-zinc-500;
                 }
@@ -657,6 +694,14 @@
 
                         &:hover {
                             transform: translateY(-4px) scale(1.01);
+                        }
+
+                        &.demo-card {
+                            @apply cursor-default;
+                        }
+
+                        &.demo-card:hover {
+                            transform: translateY(0);
                         }
 
                         .preview {
@@ -731,10 +776,15 @@
                             @apply mb-4;
                         }
 
-                        button {
+                        button,
+                        a {
                             @apply inline-flex items-center justify-center px-4 py-2 rounded-lg border border-orange-200 text-stone-900 hover:bg-orange-50 transition-colors;
                         }
                     }
+                }
+
+                .projects-footer {
+                    @apply mt-6 flex justify-center;
                 }
             }
         }

@@ -1,16 +1,16 @@
 import type { Route } from "./+types/home";
 import Navbar from "../../components/Navbar";
-import {ArrowRight, ArrowUpRight, Clock, CopyPlus, Layers, Search, Trash2} from "lucide-react";
+import {ArrowRight, ArrowUpRight, Clock, Layers} from "lucide-react";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
 import {useNavigate, useOutletContext} from "react-router";
 import {useEffect, useMemo, useRef, useState} from "react";
-import {createProject, deleteProjectById, getProjects} from "../../lib/puter.action";
+import {createProject, getProjects} from "../../lib/puter.action";
 import {t, toLocaleDateCode} from "../../lib/i18n";
 import {SITE_NAME, SITE_URL} from "../../lib/constants";
+import {DEMO_PROJECTS} from "../../lib/demo.projects";
 
-type ProjectFilter = "all" | "rendered" | "pending";
-type ProjectSort = "newest" | "oldest" | "name";
+const MAIN_PAGE_LIMIT = 6;
 
 export function meta({}: Route.MetaArgs) {
   const title = `${SITE_NAME} | تبدیل پلان دو بعدی به سه بعدی برای معماران ایران`;
@@ -40,14 +40,10 @@ export const links: Route.LinksFunction = () => [
 
 export default function Home() {
     const navigate = useNavigate();
-    const { locale } = useOutletContext<AuthContext>();
+    const { locale, isSignedIn } = useOutletContext<AuthContext>();
     const copy = t[locale];
     const [projects, setProjects] = useState<DesignItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [query, setQuery] = useState("");
-    const [filter, setFilter] = useState<ProjectFilter>("all");
-    const [sort, setSort] = useState<ProjectSort>("newest");
-    const [busyProjectId, setBusyProjectId] = useState<string | null>(null);
     const isCreatingProjectRef = useRef(false);
 
     const handleUploadComplete = async (base64Image: string) => {
@@ -89,6 +85,12 @@ export default function Home() {
     };
 
     useEffect(() => {
+        if (!isSignedIn) {
+            setProjects([]);
+            setIsLoading(false);
+            return;
+        }
+
         const fetchProjects = async () => {
             setIsLoading(true);
             const items = await getProjects();
@@ -97,7 +99,7 @@ export default function Home() {
         };
 
         fetchProjects();
-    }, []);
+    }, [isSignedIn]);
 
     const renderedCount = useMemo(
         () => projects.filter((project) => !!project.renderedImage).length,
@@ -106,65 +108,11 @@ export default function Home() {
 
     const pendingCount = projects.length - renderedCount;
 
-    const filteredProjects = useMemo(() => {
-        const trimmedQuery = query.trim().toLowerCase();
-
-        const matched = projects.filter((project) => {
-            const name = (project.name || "").toLowerCase();
-            const id = project.id.toLowerCase();
-            const matchesQuery = !trimmedQuery || name.includes(trimmedQuery) || id.includes(trimmedQuery);
-
-            if (!matchesQuery) return false;
-            if (filter === "rendered") return !!project.renderedImage;
-            if (filter === "pending") return !project.renderedImage;
-            return true;
-        });
-
-        return matched.sort((a, b) => {
-            if (sort === "name") return (a.name || "").localeCompare(b.name || "");
-            if (sort === "oldest") return a.timestamp - b.timestamp;
-            return b.timestamp - a.timestamp;
-        });
-    }, [projects, query, filter, sort]);
-
-    const handleDelete = async (projectId: string) => {
-        if (!window.confirm(copy.deleteConfirm)) return;
-
-        setBusyProjectId(projectId);
-        try {
-            const deleted = await deleteProjectById({ id: projectId });
-            if (deleted) {
-                setProjects((prev) => prev.filter((project) => project.id !== projectId));
-            }
-        } finally {
-            setBusyProjectId(null);
-        }
-    };
-
-    const handleDuplicate = async (project: DesignItem) => {
-        const newId = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
-        const duplicateName = `${project.name || `${copy.projectNamePrefix} ${newId}`} (${copy.duplicate})`;
-
-        setBusyProjectId(project.id);
-        try {
-            const duplicated = await createProject({
-                item: {
-                    ...project,
-                    id: newId,
-                    name: duplicateName,
-                    timestamp: Date.now(),
-                    isPublic: false,
-                },
-                visibility: "private",
-            });
-
-            if (duplicated) {
-                setProjects((prev) => [duplicated, ...prev]);
-            }
-        } finally {
-            setBusyProjectId(null);
-        }
-    };
+    const visibleProjects = isSignedIn
+        ? [...projects].sort((a, b) => b.timestamp - a.timestamp).slice(0, MAIN_PAGE_LIMIT)
+        : DEMO_PROJECTS.slice(0, MAIN_PAGE_LIMIT);
+    const isDemoMode = !isSignedIn;
+    const hasMoreProjects = isSignedIn && projects.length > MAIN_PAGE_LIMIT;
 
     const pricingPlans = [
         {
@@ -258,9 +206,9 @@ export default function Home() {
                       {copy.startBuilding} <ArrowRight className="icon" />
                   </a>
 
-                  <Button variant="outline" size="lg" className="demo">
-                      {copy.watchDemo}
-                  </Button>
+                  <a href="#projects" className="demo">
+                      {copy.navProjects}
+                  </a>
               </div>
 
               <div id="upload" className="upload-shell">
@@ -281,103 +229,77 @@ export default function Home() {
               </div>
           </section>
 
-          <section className="projects">
+          <section className="projects" id="projects">
               <div className="section-inner">
                   <div className="section-head">
                       <div className="copy">
                           <h2>{copy.projectsTitle}</h2>
                           <p>{copy.projectsSubtitle}</p>
                       </div>
-                  </div>
-
-                  <div className="project-tools">
-                      <div className="search-box">
-                          <Search size={16} />
-                          <input
-                              value={query}
-                              onChange={(event) => setQuery(event.target.value)}
-                              placeholder={copy.searchProjects}
-                          />
-                      </div>
-
-                      <div className="select-group">
-                          <label>{copy.filterLabel}</label>
-                          <select
-                              value={filter}
-                              onChange={(event) => setFilter(event.target.value as ProjectFilter)}
-                          >
-                              <option value="all">{copy.filterAll}</option>
-                              <option value="rendered">{copy.filterRendered}</option>
-                              <option value="pending">{copy.filterPending}</option>
-                          </select>
-                      </div>
-
-                      <div className="select-group">
-                          <label>{copy.sortLabel}</label>
-                          <select
-                              value={sort}
-                              onChange={(event) => setSort(event.target.value as ProjectSort)}
-                          >
-                              <option value="newest">{copy.sortNewest}</option>
-                              <option value="oldest">{copy.sortOldest}</option>
-                              <option value="name">{copy.sortName}</option>
-                          </select>
-                      </div>
+                      {isSignedIn && (
+                          <Button size="sm" variant="outline" onClick={() => navigate("/projects")}>
+                              {copy.viewAllProjects}
+                          </Button>
+                      )}
                   </div>
 
                   <div className="project-stats">
                       <div className="stat-card">
                           <span>{copy.statsTotal}</span>
-                          <strong>{projects.length}</strong>
+                          <strong>{isSignedIn ? projects.length : DEMO_PROJECTS.length}</strong>
                       </div>
                       <div className="stat-card">
                           <span>{copy.statsRendered}</span>
-                          <strong>{renderedCount}</strong>
+                          <strong>{isSignedIn ? renderedCount : DEMO_PROJECTS.length}</strong>
                       </div>
                       <div className="stat-card">
                           <span>{copy.statsPending}</span>
-                          <strong>{pendingCount}</strong>
+                          <strong>{isSignedIn ? pendingCount : 0}</strong>
                       </div>
                   </div>
 
+                  <p className="projects-note">
+                      {isDemoMode ? copy.signInForProjects : copy.latestProjectsNote}
+                  </p>
+
                   <div className="projects-grid">
-                      {isLoading ? (
+                      {isDemoMode ? (
+                          visibleProjects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
+                              <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
+                                  <div className="preview">
+                                      <img src={renderedImage || sourceImage} alt={copy.projectLabel} />
+                                      <div className="badge">
+                                          <span>{copy.demo}</span>
+                                      </div>
+                                  </div>
+
+                                  <div className="card-body">
+                                      <div>
+                                          <h3>{name}</h3>
+                                          <div className="meta">
+                                              <Clock size={12} />
+                                              <span>{new Date(timestamp).toLocaleDateString(toLocaleDateCode(locale))}</span>
+                                              <span>{copy.byLabel} {copy.designerName}</span>
+                                          </div>
+                                      </div>
+                                      <div className="arrow">
+                                          <ArrowUpRight size={18} />
+                                      </div>
+                                  </div>
+                              </div>
+                          ))
+                      ) : isLoading ? (
                           Array.from({ length: 6 }).map((_, index) => (
                               <div key={`skeleton-${index}`} className="project-card skeleton" />
                           ))
-                      ) : filteredProjects.length > 0 ? (
-                          filteredProjects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
+                      ) : visibleProjects.length > 0 ? (
+                          visibleProjects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
                               <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
                                   <div className="preview">
                                       <img src={renderedImage || sourceImage} alt={copy.projectLabel} />
 
                                       <div className="badge">
                                           <span>{renderedImage ? copy.filterRendered : copy.filterPending}</span>
-                                      </div>
-
-                                      <div className="card-actions">
-                                          <button
-                                              type="button"
-                                              title={copy.duplicate}
-                                              disabled={busyProjectId === id}
-                                              onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  void handleDuplicate({ id, name, renderedImage, sourceImage, timestamp });
-                                              }}
-                                          >
-                                              <CopyPlus size={14} />
-                                          </button>
-                                          <button
-                                              type="button"
-                                              title={copy.delete}
-                                              disabled={busyProjectId === id}
-                                              onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  void handleDelete(id);
-                                              }}
-                                          >
-                                              <Trash2 size={14} />
-                                          </button>
                                       </div>
                                   </div>
 
@@ -399,22 +321,18 @@ export default function Home() {
                           ))
                       ) : (
                           <div className="empty">
-                              <p>{projects.length === 0 ? copy.noProjects : copy.noResults}</p>
-                              {(query || filter !== "all") && (
-                                  <button
-                                      type="button"
-                                      onClick={() => {
-                                          setQuery("");
-                                          setFilter("all");
-                                          setSort("newest");
-                                      }}
-                                  >
-                                      {copy.resetFilters}
-                                  </button>
-                              )}
+                              <p>{copy.noProjects}</p>
+                              <a href="#upload">{copy.startBuilding}</a>
                           </div>
                       )}
                   </div>
+                  {hasMoreProjects && (
+                      <div className="projects-footer">
+                          <Button size="sm" variant="outline" onClick={() => navigate("/projects")}>
+                              {copy.viewAllProjects}
+                          </Button>
+                      </div>
+                  )}
               </div>
           </section>
 

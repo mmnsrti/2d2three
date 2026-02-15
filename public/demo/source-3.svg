@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#f4f5f7"/>
+  <g stroke="#2d2d2d" stroke-width="8" fill="none">
+    <rect x="120" y="100" width="960" height="700"/>
+    <line x1="120" y1="300" x2="1080" y2="300"/>
+    <line x1="120" y1="520" x2="1080" y2="520"/>
+    <line x1="360" y1="100" x2="360" y2="800"/>
+    <line x1="650" y1="100" x2="650" y2="800"/>
+    <line x1="900" y1="100" x2="900" y2="800"/>
+  </g>
+  <g fill="#333" font-family="Vazirmatn, sans-serif" font-size="30">
+    <text x="170" y="230">اتاق جلسه</text>
+    <text x="430" y="230">مدیریت</text>
+    <text x="700" y="230">پذیرش</text>
+    <text x="930" y="230">سرویس</text>
+    <text x="170" y="450">اپن اسپیس</text>
+    <text x="430" y="450">اتاق کار</text>
+    <text x="700" y="450">آشپزخانه</text>
+    <text x="930" y="450">انبار</text>
+    <text x="170" y="690">ورودی</text>
+    <text x="430" y="690">لانج</text>
+    <text x="700" y="690">استودیو</text>
+    <text x="930" y="690">خدمات</text>
+  </g>
+</svg>

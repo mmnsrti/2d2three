@@ -1,6 +1,6 @@
 import type { Route } from "./+types/visualizer.$id";
 import { useNavigate, useOutletContext, useParams} from "react-router";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {generate3DView} from "../../lib/ai.action";
 import {Download, Minus, Plus, RefreshCcw, RotateCw, Share2, X} from "lucide-react";
 import Button from "../../components/ui/Button";
@@ -8,6 +8,7 @@ import Navbar from "../../components/Navbar";
 import {createProject, getProjectById} from "../../lib/puter.action";
 import {ReactCompareSlider, ReactCompareSliderImage} from "react-compare-slider";
 import {t} from "../../lib/i18n";
+import {DEMO_PROJECTS} from "../../lib/demo.projects";
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 3;
@@ -26,6 +27,7 @@ const VisualizerId = () => {
     const navigate = useNavigate();
     const { userId, locale } = useOutletContext<AuthContext>()
     const copy = t[locale];
+    const demoProject = useMemo(() => DEMO_PROJECTS.find((item) => item.id === id) || null, [id]);
 
     const hasInitialGenerated = useRef(false);
 
@@ -146,6 +148,7 @@ const VisualizerId = () => {
     };
 
     const handleRegenerate = () => {
+        if (demoProject) return;
         if (!project?.sourceImage || isProcessing) return;
         hasInitialGenerated.current = true;
         void runGeneration(project);
@@ -247,11 +250,12 @@ const VisualizerId = () => {
             setIsProjectLoading(true);
 
             const fetchedProject = await getProjectById({ id });
+            const resolvedProject = fetchedProject || demoProject;
 
             if (!isMounted) return;
 
-            setProject(fetchedProject);
-            setCurrentImage(fetchedProject?.renderedImage || null);
+            setProject(resolvedProject);
+            setCurrentImage(resolvedProject?.renderedImage || null);
             resetViewport();
             setShareStatus("idle");
             setIsProjectLoading(false);
@@ -263,7 +267,7 @@ const VisualizerId = () => {
         return () => {
             isMounted = false;
         };
-    }, [id]);
+    }, [id, demoProject]);
 
     useEffect(() => {
         if (
@@ -321,7 +325,7 @@ const VisualizerId = () => {
                             <p>{copy.projectLabel}</p>
                             <h2>{project?.name || `${copy.projectNamePrefix} ${id}`}</h2>
                             <p className="note">
-                                {isProcessing ? copy.rendering : currentImage ? copy.renderReady : copy.createdByYou}
+                                {demoProject ? copy.demo : isProcessing ? copy.rendering : currentImage ? copy.renderReady : copy.createdByYou}
                             </p>
                         </div>
 
@@ -386,7 +390,13 @@ const VisualizerId = () => {
                     </div>
 
                     <div className="render-controls">
-                        <Button size="sm" variant="outline" className="control" onClick={handleRegenerate} disabled={isProcessing || !project?.sourceImage}>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="control"
+                            onClick={handleRegenerate}
+                            disabled={!!demoProject || isProcessing || !project?.sourceImage}
+                        >
                             <RotateCw className="w-4 h-4" />
                             {copy.regenerate}
                         </Button>

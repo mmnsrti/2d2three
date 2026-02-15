@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#efe2d2"/>
+      <stop offset="100%" stop-color="#f8f2ea"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <g fill="#fff" stroke="#b08968" stroke-width="6">
+    <rect x="140" y="120" width="920" height="660" rx="12"/>
+    <rect x="150" y="130" width="340" height="290" fill="#d8e2dc"/>
+    <rect x="500" y="130" width="270" height="290" fill="#e6ccb2"/>
+    <rect x="780" y="130" width="270" height="290" fill="#b7d3c6"/>
+    <rect x="150" y="430" width="340" height="340" fill="#f0ead2"/>
+    <rect x="500" y="430" width="270" height="340" fill="#dbe7f2"/>
+    <rect x="780" y="430" width="270" height="340" fill="#f5d6c6"/>
+  </g>
+  <text x="170" y="92" font-family="Vazirmatn, sans-serif" font-size="34" fill="#6b4f3f">Rendered Demo 01</text>
+</svg>

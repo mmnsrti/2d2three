@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#fafafa"/>
+  <g stroke="#2f2f2f" stroke-width="8" fill="none">
+    <rect x="130" y="110" width="940" height="680"/>
+    <line x1="130" y1="360" x2="1070" y2="360"/>
+    <line x1="420" y1="110" x2="420" y2="790"/>
+    <line x1="740" y1="110" x2="740" y2="790"/>
+    <line x1="420" y1="560" x2="740" y2="560"/>
+  </g>
+  <g fill="#333" font-family="Vazirmatn, sans-serif" font-size="32">
+    <text x="185" y="250">پذیرایی</text>
+    <text x="500" y="250">اتاق خواب ۱</text>
+    <text x="810" y="250">اتاق خواب ۲</text>
+    <text x="185" y="640">آشپزخانه</text>
+    <text x="500" y="640">ناهارخوری</text>
+    <text x="810" y="640">سرویس</text>
+  </g>
+</svg>
