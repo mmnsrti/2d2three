@@ -18,6 +18,8 @@ import {
 import {DEFAULT_LOCALE, isLocale, LOCALE_STORAGE_KEY} from "../lib/i18n";
 import {SITE_NAME, SITE_URL} from "../lib/constants";
 
+const LOCALE_INIT_KEY = "2d2three_locale_initialized";
+
 export function meta({}: Route.MetaArgs) {
     const title = `${SITE_NAME} | تبدیل پلان دو بعدی به نمای سه بعدی با هوش مصنوعی`;
     const description = "2d2three ابزار فارسی تبدیل پلان 2D به نمای 3D است. مناسب معماران، طراحان داخلی و تیم های ساختمانی ایران.";
@@ -88,6 +90,16 @@ export default function App() {
 
     useEffect(() => {
         if (typeof window === "undefined") return;
+
+        const initialized = window.localStorage.getItem(LOCALE_INIT_KEY) === "1";
+
+        if (!initialized) {
+            window.localStorage.setItem(LOCALE_STORAGE_KEY, DEFAULT_LOCALE);
+            window.localStorage.setItem(LOCALE_INIT_KEY, "1");
+            setAuthState((prev) => ({ ...prev, locale: DEFAULT_LOCALE }));
+            return;
+        }
+
         const savedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY);
         if (isLocale(savedLocale)) {
             setAuthState((prev) => ({ ...prev, locale: savedLocale }));
