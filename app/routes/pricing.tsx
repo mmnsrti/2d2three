@@ -4,11 +4,12 @@ import Button from "../../components/ui/Button";
 import {useNavigate, useOutletContext} from "react-router";
 import {t, toLocaleDateCode} from "../../lib/i18n";
 import {SITE_NAME, SITE_URL} from "../../lib/constants";
+import {priceWithMarginToman, useUsdToIrrRate} from "../../lib/exchange-rate";
 
 type PricingPlan = {
     id: string;
     name: string;
-    priceToman: number;
+    priceUsd: number;
     description: string;
     features: string[];
     bestFor: string;
@@ -41,12 +42,14 @@ export default function Pricing() {
     const { locale } = useOutletContext<AuthContext>();
     const copy = t[locale];
     const formatToman = (amount: number) => new Intl.NumberFormat(toLocaleDateCode(locale)).format(amount);
+    const { usdToIrrRate, isLiveRate } = useUsdToIrrRate();
+    const planPriceToman = (usd: number) => priceWithMarginToman(usd, usdToIrrRate);
 
     const plans: PricingPlan[] = [
         {
             id: "starter",
             name: copy.starterPlan,
-            priceToman: 0,
+            priceUsd: 0,
             description: copy.planStarterDesc,
             features: [copy.featurePuterAuth, copy.featurePrivateProjects, copy.featurePuterKvStorage, copy.featureLocalFailover],
             bestFor: copy.planStarterBestFor,
@@ -58,7 +61,7 @@ export default function Pricing() {
         {
             id: "pro",
             name: copy.proPlan,
-            priceToman: 790000,
+            priceUsd: 10,
             description: copy.planProDesc,
             features: [copy.featurePuterWorker, copy.featureFasterRenders, copy.featurePriorityQueue, copy.featurePuterHosting],
             bestFor: copy.planProBestFor,
@@ -71,9 +74,9 @@ export default function Pricing() {
         {
             id: "agency",
             name: copy.agencyPlan,
-            priceToman: 1490000,
+            priceUsd: 25,
             description: copy.planAgencyDesc,
-            features: [copy.featureDedicatedWorker, copy.featurePrioritySupport, copy.featureTeamWorkspace, copy.featureHistory],
+            features: [copy.featureDedicatedWorker, copy.featurePuterWorker, copy.featurePriorityQueue, copy.featurePrioritySupport],
             bestFor: copy.planAgencyBestFor,
             renders: copy.planAgencyRenders,
             storage: copy.planAgencyStorage,
@@ -83,12 +86,31 @@ export default function Pricing() {
     ];
 
     const compareRows = [
-        { label: copy.pricingRowPrice, values: plans.map((plan) => `${formatToman(plan.priceToman)} ${copy.pricingCurrency}`) },
+        { label: copy.pricingRowPrice, values: plans.map((plan) => `${formatToman(planPriceToman(plan.priceUsd))} ${copy.pricingCurrency}`) },
         { label: copy.pricingRowRenders, values: plans.map((plan) => plan.renders) },
         { label: copy.pricingRowStorage, values: plans.map((plan) => plan.storage) },
         { label: copy.pricingRowQueue, values: plans.map((plan) => plan.queue) },
         { label: copy.pricingRowSupport, values: plans.map((plan) => plan.support) },
         { label: copy.pricingRowBestFor, values: plans.map((plan) => plan.bestFor) },
+    ];
+    const pricingPreviewPoints = [
+        copy.pricingPreviewPointOne,
+        copy.pricingPreviewPointTwo,
+        copy.pricingPreviewPointThree,
+    ];
+    const pricingGuideSteps = [
+        {
+            title: copy.pricingGuideStepOneTitle,
+            text: copy.pricingGuideStepOneText,
+        },
+        {
+            title: copy.pricingGuideStepTwoTitle,
+            text: copy.pricingGuideStepTwoText,
+        },
+        {
+            title: copy.pricingGuideStepThreeTitle,
+            text: copy.pricingGuideStepThreeText,
+        },
     ];
 
     return (
@@ -102,6 +124,34 @@ export default function Pricing() {
                         <p>{copy.pricingDetailsSubtitle}</p>
                     </div>
 
+                    <div className="pricing-highlights">
+                        <p>{copy.pricingPreviewLead}</p>
+                        <ul>
+                            {pricingPreviewPoints.map((point) => (
+                                <li key={point}>{point}</li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <p className={`rate-note ${isLiveRate ? "is-live" : "is-fallback"}`}>
+                        <span>{isLiveRate ? copy.pricingRateLive : copy.pricingRateFallback}</span>
+                        <span>{copy.pricingValueNote}</span>
+                    </p>
+
+                    <div className="guide-grid">
+                        <article className="guide-intro">
+                            <h3>{copy.pricingGuideTitle}</h3>
+                            <p>{copy.pricingGuideSubtitle}</p>
+                        </article>
+                        {pricingGuideSteps.map((step, index) => (
+                            <article key={step.title} className="guide-step">
+                                <span>{index + 1}</span>
+                                <h3>{step.title}</h3>
+                                <p>{step.text}</p>
+                            </article>
+                        ))}
+                    </div>
+
                     <div className="plan-grid">
                         {plans.map((plan) => (
                             <article key={plan.id} className={`plan-card ${plan.highlight ? "is-highlighted" : ""}`}>
@@ -109,10 +159,33 @@ export default function Pricing() {
                                 <h3>{plan.name}</h3>
                                 <p className="desc">{plan.description}</p>
                                 <p className="price">
-                                    <strong>{formatToman(plan.priceToman)}</strong>
+                                    <strong>{formatToman(planPriceToman(plan.priceUsd))}</strong>
                                     <span>{copy.pricingCurrency} / {copy.pricingMonthly}</span>
                                 </p>
 
+                                <div className="plan-details">
+                                    <div className="detail">
+                                        <span>{copy.planBestForLabel}</span>
+                                        <strong>{plan.bestFor}</strong>
+                                    </div>
+                                    <div className="detail">
+                                        <span>{copy.planRendersLabel}</span>
+                                        <strong>{plan.renders}</strong>
+                                    </div>
+                                    <div className="detail">
+                                        <span>{copy.planSupportLabel}</span>
+                                        <strong>{plan.support}</strong>
+                                    </div>
+                                </div>
+
+                                <p className="plan-note">
+                                    {plan.id === "starter"
+                                        ? copy.planStarterNote
+                                        : plan.id === "pro"
+                                            ? copy.planProNote
+                                            : copy.planAgencyNote}
+                                </p>
+                                <p className="feature-label">{copy.planFeaturesLabel}</p>
                                 <ul className="features">
                                     {plan.features.map((feature) => (
                                         <li key={`${plan.id}-${feature}`}>{feature}</li>

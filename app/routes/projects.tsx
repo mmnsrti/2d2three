@@ -134,6 +134,7 @@ export default function Projects() {
                         <div className="projects-grid">
                             <div className="empty">
                                 <p>{copy.signInForProjects}</p>
+                                <p className="projects-note">{copy.projectsGuideSignedOut}</p>
                                 <div className="flex items-center justify-center gap-2">
                                     <Button size="sm" onClick={() => void signIn()}>{copy.logIn}</Button>
                                     <Link to="/#projects">{copy.watchDemo}</Link>
@@ -162,6 +163,8 @@ export default function Projects() {
                             <Button size="sm" variant="outline" onClick={() => navigate("/")}>{copy.backHome}</Button>
                         </div>
                     </div>
+
+                    <p className="projects-note">{copy.projectsGuideSignedIn}</p>
 
                     <div className="project-tools">
                         <div className="search-box">

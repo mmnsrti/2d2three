@@ -444,6 +444,15 @@ const VisualizerId = () => {
                         <span className="zoom-value">{Math.round(zoom * 100)}%</span>
                         <span className="zoom-hint">{copy.zoomHint}</span>
                     </div>
+
+                    <div className="render-tips">
+                        <p className="title">{copy.visualizerTipsTitle}</p>
+                        <ul>
+                            <li>{copy.visualizerTipZoom}</li>
+                            <li>{copy.visualizerTipRender}</li>
+                            <li>{copy.visualizerTipShare}</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div className="panel compare">

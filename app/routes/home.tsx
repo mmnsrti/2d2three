@@ -9,8 +9,21 @@ import {createProject, getProjects} from "../../lib/puter.action";
 import {t, toLocaleDateCode} from "../../lib/i18n";
 import {SITE_NAME, SITE_URL} from "../../lib/constants";
 import {DEMO_PROJECTS} from "../../lib/demo.projects";
+import {priceWithMarginToman, useUsdToIrrRate} from "../../lib/exchange-rate";
 
 const MAIN_PAGE_LIMIT = 6;
+type PlanPreview = {
+    id: string;
+    name: string;
+    priceUsd: number;
+    highlight: boolean;
+    description: string;
+    features: string[];
+    bestFor: string;
+    renders: string;
+    support: string;
+    note: string;
+};
 
 export function meta({}: Route.MetaArgs) {
   const title = `${SITE_NAME} | تبدیل پلان دو بعدی به سه بعدی برای معماران ایران`;
@@ -115,32 +128,63 @@ export default function Home() {
     const hasMoreProjects = isSignedIn && projects.length > MAIN_PAGE_LIMIT;
 
     const formatToman = (amount: number) => new Intl.NumberFormat(toLocaleDateCode(locale)).format(amount);
+    const { usdToIrrRate, isLiveRate } = useUsdToIrrRate();
+    const planPriceToman = (usd: number) => priceWithMarginToman(usd, usdToIrrRate);
 
-    const pricingPlans = [
+    useEffect(() => {
+        if (!import.meta.env.DEV) return;
+        console.log("[pricing-home]", {
+            usdToIrrRate,
+            isLiveRate,
+            plans: [0, 10, 25].map((usd) => ({
+                usd,
+                toman: planPriceToman(usd),
+            })),
+        });
+    }, [usdToIrrRate, isLiveRate]);
+
+    const pricingPlans: PlanPreview[] = [
         {
             id: "starter",
             name: copy.starterPlan,
-            priceToman: 0,
+            priceUsd: 0,
             highlight: false,
             description: copy.planStarterDesc,
             features: [copy.featurePuterAuth, copy.featurePrivateProjects, copy.featurePuterKvStorage, copy.featureLocalFailover],
+            bestFor: copy.planStarterBestFor,
+            renders: copy.planStarterRenders,
+            support: copy.planStarterSupport,
+            note: copy.planStarterNote,
         },
         {
             id: "pro",
             name: copy.proPlan,
-            priceToman: 790000,
+            priceUsd: 10,
             highlight: true,
             description: copy.planProDesc,
             features: [copy.featurePuterWorker, copy.featureFasterRenders, copy.featurePriorityQueue, copy.featurePuterHosting],
+            bestFor: copy.planProBestFor,
+            renders: copy.planProRenders,
+            support: copy.planProSupport,
+            note: copy.planProNote,
         },
         {
             id: "agency",
             name: copy.agencyPlan,
-            priceToman: 1490000,
+            priceUsd: 25,
             highlight: false,
             description: copy.planAgencyDesc,
-            features: [copy.featureDedicatedWorker, copy.featurePrioritySupport, copy.featureTeamWorkspace, copy.featureHistory],
+            features: [copy.featureDedicatedWorker, copy.featurePuterWorker, copy.featurePriorityQueue, copy.featurePrioritySupport],
+            bestFor: copy.planAgencyBestFor,
+            renders: copy.planAgencyRenders,
+            support: copy.planAgencySupport,
+            note: copy.planAgencyNote,
         },
+    ];
+    const pricingPreviewPoints = [
+        copy.pricingPreviewPointOne,
+        copy.pricingPreviewPointTwo,
+        copy.pricingPreviewPointThree,
     ];
     const workflowSteps = [
         {
@@ -186,7 +230,7 @@ export default function Home() {
         offers: pricingPlans.map((plan) => ({
             "@type": "Offer",
             name: plan.name,
-            price: String(plan.priceToman * 10),
+            price: String(planPriceToman(plan.priceUsd) * 10),
             priceCurrency: "IRR",
         })),
     };
@@ -423,6 +467,20 @@ export default function Home() {
                       <p>{copy.pricingSubtitle}</p>
                   </div>
 
+                  <div className="pricing-highlights">
+                      <p>{copy.pricingPreviewLead}</p>
+                      <ul>
+                          {pricingPreviewPoints.map((point) => (
+                              <li key={point}>{point}</li>
+                          ))}
+                      </ul>
+                  </div>
+
+                  <p className={`rate-note ${isLiveRate ? "is-live" : "is-fallback"}`}>
+                      <span>{isLiveRate ? copy.pricingRateLive : copy.pricingRateFallback}</span>
+                      <span>{copy.pricingValueNote}</span>
+                  </p>
+
                   <div className="plan-grid">
                       {pricingPlans.map((plan) => (
                           <article key={plan.id} className={`plan-card ${plan.highlight ? "is-highlighted" : ""}`}>
@@ -430,10 +488,27 @@ export default function Home() {
                               <h3>{plan.name}</h3>
                               <p className="desc">{plan.description}</p>
                               <p className="price">
-                                  <strong>{formatToman(plan.priceToman)}</strong>
+                                  <strong>{formatToman(planPriceToman(plan.priceUsd))}</strong>
                                   <span>{copy.pricingCurrency} / {copy.pricingMonthly}</span>
                               </p>
 
+                              <div className="plan-details">
+                                  <div className="detail">
+                                      <span>{copy.planBestForLabel}</span>
+                                      <strong>{plan.bestFor}</strong>
+                                  </div>
+                                  <div className="detail">
+                                      <span>{copy.planRendersLabel}</span>
+                                      <strong>{plan.renders}</strong>
+                                  </div>
+                                  <div className="detail">
+                                      <span>{copy.planSupportLabel}</span>
+                                      <strong>{plan.support}</strong>
+                                  </div>
+                              </div>
+
+                              <p className="plan-note">{plan.note}</p>
+                              <p className="feature-label">{copy.planFeaturesLabel}</p>
                               <ul className="features">
                                   {plan.features.map((feature) => (
                                       <li key={feature}>{feature}</li>
