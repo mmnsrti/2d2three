@@ -16,6 +16,31 @@ import {
     signOut as puterSignOut,
 } from "../lib/puter.action";
 import {DEFAULT_LOCALE, isLocale, LOCALE_STORAGE_KEY} from "../lib/i18n";
+import {SITE_NAME, SITE_URL} from "../lib/constants";
+
+export function meta({}: Route.MetaArgs) {
+    const title = `${SITE_NAME} | تبدیل پلان دو بعدی به نمای سه بعدی با هوش مصنوعی`;
+    const description = "2d2three ابزار فارسی تبدیل پلان 2D به نمای 3D است. مناسب معماران، طراحان داخلی و تیم های ساختمانی ایران.";
+    const ogImage = `${SITE_URL}/og-image.svg`;
+
+    return [
+        { title },
+        { name: "description", content: description },
+        { name: "robots", content: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" },
+        { name: "theme-color", content: "#c86a3b" },
+        { property: "og:site_name", content: SITE_NAME },
+        { property: "og:type", content: "website" },
+        { property: "og:locale", content: "fa_IR" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: SITE_URL },
+        { property: "og:image", content: ogImage },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: ogImage },
+    ];
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -28,6 +53,9 @@ export const links: Route.LinksFunction = () => [
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap",
   },
+  { rel: "alternate", hrefLang: "fa-IR", href: SITE_URL },
+  { rel: "alternate", hrefLang: "en", href: SITE_URL },
+  { rel: "alternate", hrefLang: "x-default", href: SITE_URL },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

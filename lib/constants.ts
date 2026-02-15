@@ -1,4 +1,6 @@
 export const PUTER_WORKER_URL = import.meta.env.VITE_PUTER_WORKER_URL || "";
+export const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://2d2three.ir").replace(/\/$/, "");
+export const SITE_NAME = "2d2three";
 
 // Storage Paths
 export const STORAGE_PATHS = {

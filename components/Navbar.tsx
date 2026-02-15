@@ -1,11 +1,14 @@
 import {Box} from "lucide-react";
 import Button from "./ui/Button";
-import {useOutletContext} from "react-router";
+import {useLocation, useOutletContext} from "react-router";
 import {t} from "../lib/i18n";
 
 const Navbar = () => {
+    const { pathname } = useLocation();
     const { isSignedIn, userName, signIn, signOut, locale, setLocale } = useOutletContext<AuthContext>()
     const copy = t[locale];
+    const sectionHref = (id: string) => (pathname === "/" ? `#${id}` : `/#${id}`);
+    const ctaHref = sectionHref("upload");
 
     const handleAuthClick = async () => {
         if(isSignedIn) {
@@ -38,10 +41,9 @@ const Navbar = () => {
                     </div>
 
                     <ul className="links">
-                        <a href="#">{copy.navProduct}</a>
-                        <a href="#">{copy.navPricing}</a>
-                        <a href="#">{copy.navCommunity}</a>
-                        <a href="#">{copy.navEnterprise}</a>
+                        <a href={sectionHref("product")}>{copy.navProduct}</a>
+                        <a href={sectionHref("pricing")}>{copy.navPricing}</a>
+                        <a href={sectionHref("community")}>{copy.navCommunity}</a>
                     </ul>
                 </div>
 
@@ -79,7 +81,7 @@ const Navbar = () => {
                                 {copy.logIn}
                             </Button>
 
-                            <a href="#upload" className="cta">{copy.getStarted}</a>
+                            <a href={ctaHref} className="cta">{copy.getStarted}</a>
                         </>
                     )}
                 </div>
